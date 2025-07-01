@@ -31,13 +31,13 @@ umi.use(signerIdentity(signer));
                 files: [
                     {
                         type: "image/png",
-                        uri: "?"
+                        uri: image
                     },
                 ]
             },
             creators: []
         };
-        const myUri = ???
+        const myUri = await umi.uploader.uploadJson(metadata);
         console.log("Your metadata URI: ", myUri);
     }
     catch(error) {
