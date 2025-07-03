@@ -4,7 +4,7 @@ import { createGenericFile, createSignerFromKeypair, signerIdentity } from "@met
 import { irysUploader } from "@metaplex-foundation/umi-uploader-irys"
 
 // Create a devnet connection
-const umi = createUmi('https://api.devnet.solana.com');
+const umi = createUmi('https://devnet.helius-rpc.com/?api-key=71d05d9f-5d94-4548-9137-c6c3d9f69b3e');
 
 let keypair = umi.eddsa.createKeypairFromSecretKey(new Uint8Array(wallet));
 const signer = createSignerFromKeypair(umi, keypair);
