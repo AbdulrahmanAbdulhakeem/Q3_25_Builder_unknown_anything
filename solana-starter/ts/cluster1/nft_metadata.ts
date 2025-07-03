@@ -17,15 +17,15 @@ umi.use(signerIdentity(signer));
         // Follow this JSON structure
         // https://docs.metaplex.com/programs/token-metadata/changelog/v1.0#json-structure
 
-        const image = "https://images.app.goo.gl/bxTEBK5ftdZZYHPV7";
+        const image = "https://gateway.irys.xyz/8rjNKB3W35Qdx9eWBT7KEksSqpuVwXnHXdMfytm6nLCG";
 
         const metadata = {
-            name: "MFLD",
-            symbol: "$MFD",
-            description: "MFD TOKEN",
+            name: "RUG GENE",
+            symbol: "$RRRUG",
+            description: "Rug Day",
             image,
             attributes: [
-                {trait_type: '?', value: '?'}
+                {trait_type: 'type', value: 'RUG'}
             ],
             properties: {
                 files: [
@@ -37,6 +37,7 @@ umi.use(signerIdentity(signer));
             },
             creators: []
         };
+
         const myUri = await umi.uploader.uploadJson(metadata);
         console.log("Your metadata URI: ", myUri);
     }

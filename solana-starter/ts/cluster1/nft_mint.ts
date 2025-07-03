@@ -2,7 +2,7 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults"
 import { createSignerFromKeypair, signerIdentity, generateSigner, percentAmount } from "@metaplex-foundation/umi"
 import { createNft, mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
 
-import wallet from "../turbin3-wallet.json"
+import wallet from "../Turbin3-wallet.json"
 import base58 from "bs58";
 
 const RPC_ENDPOINT = "https://api.devnet.solana.com";
@@ -18,11 +18,12 @@ const mint = generateSigner(umi);
 (async () => {
     let tx = createNft(umi,{
         mint,
-        name: "MFLDD",
-        uri: "https://images.app.goo.gl/bxTEBK5ftdZZYHPV7",
-        symbol:"$MFD",
+        name: "RUG GENE",
+        uri: "https://gateway.irys.xyz/8rjNKB3W35Qdx9eWBT7KEksSqpuVwXnHXdMfytm6nLCG",
+        symbol:"$RRRUG",
         sellerFeeBasisPoints: percentAmount(10),
     });
+
     let result = await tx.sendAndConfirm(umi);
     const signature = base58.encode(result.signature);
     
