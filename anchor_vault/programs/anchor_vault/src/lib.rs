@@ -23,7 +23,7 @@ pub struct Initialize <'info>{
         init,
         payer = user,
         space = VaultState::INIT_SPACE,
-        seeds = [b"vault" , user.key().as_ref()],
+        seeds = [b"vaultState" , user.key().as_ref()],
         bump
     )]
     pub vault_state:Account<'info,VaultState>,
@@ -50,6 +50,28 @@ impl<'info>Initialize<'info> {
         transfer(cpi_ctx, amount)
     }
 }
+
+
+#[derive(Accounts)]
+pub struct Payment<'info> {
+    #[account(mut)]
+    pub user:Signer<'info>,
+    #[account(
+        seeds = [b"vaultState" , user.key().as_ref()],
+        bump,
+    )]
+    pub vault_state:Account<'info,VaultState>,
+    #[account(
+        mut,
+        seeds = [b"vault", vault_state.key().as_ref()],
+        bump
+    )]
+    pub vault:SystemAccount<'info>,
+    pub system_program:Program<'info,System>
+}
+
+impl<'info>Payment<'info>{}
+
 
 #[account]
 pub struct VaultState {
