@@ -1,7 +1,7 @@
 #![allow(unexpected_cfgs)]
 #![allow(deprecated)]
 
-use anchor_lang::prelude::*;
+use anchor_lang::{prelude::*, system_program::{transfer, Transfer}};
 
 declare_id!("34AuAC3qLVb5uBSgfTSPea9Q2zcuWf2SQFMjQY2sm3Lg");
 
@@ -37,6 +37,18 @@ pub struct Initialize <'info>{
 }
 
 impl<'info>Initialize<'info> {
+    pub fn initialize (&mut self, amount:u64) -> Result<()> {
+        let cpi_program = self.system_program.to_account_info();
+
+        let cpi_accounts = Transfer{
+            from:self.user.to_account_info(),
+            to:self.vault.to_account_info()
+        };
+
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+
+        transfer(cpi_ctx, amount)
+    }
 }
 
 #[account]
