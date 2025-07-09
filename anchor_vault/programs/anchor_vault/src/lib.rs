@@ -24,6 +24,9 @@ pub mod anchor_vault {
         ctx.accounts.withdraw(amount)
     }
 
+    pub fn close(ctx:Context<Close>) -> Result<()>{
+        ctx.accounts.close()
+    }
 }
 
 #[derive(Accounts)]
@@ -151,7 +154,7 @@ pub struct Close<'info> {
 }
 
 impl<'info>Close<'info>{
-    pub fn close(&mut self) -> Result<()> {
+    pub fn close(&self) -> Result<()> {
         let vault_balance = self.vault.to_account_info().lamports();
 
         require_gt!(vault_balance,0,VaultError::InsufficientVaultBalance);
