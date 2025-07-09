@@ -3,6 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { AnchorVault } from "../target/types/anchor_vault";
 import { expect } from "chai";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { BN } from "bn.js";
 
 describe("anchor_vault", () => {
   // Configure the client to use the local cluster.
@@ -51,7 +52,7 @@ describe("anchor_vault", () => {
     const initialAmt = await provider.connection.getBalance(vault);
 
     const tx = await program.methods
-      .deposit(new anchor.BN(depositAmount))
+      .deposit(new BN(depositAmount))
       .accountsPartial({
         user: provider.wallet.publicKey,
         vaultState,
@@ -64,6 +65,34 @@ describe("anchor_vault", () => {
 
     const finalAmt = await provider.connection.getBalance(vault);
 
-    expect(finalAmt - initialAmt).to.be.equal(depositAmount);
+    expect(finalAmt - initialAmt).to.equal(depositAmount);
   });
+
+  it("should withdraw sol", async () => {
+    const withdrawAmt = 0.1 * LAMPORTS_PER_SOL;
+
+    const initialVaultAmt = await provider.connection.getBalance(vault);
+    const initialUserAmt = await provider.connection.getBalance(
+      provider.wallet.publicKey
+    );
+
+    const tx = await program.methods.withdraw(new BN(withdrawAmt)).accountsPartial({
+      user:provider.wallet.publicKey,
+      vaultState,
+      vault,
+      systemProgram:anchor.web3.SystemProgram.programId
+    }).rpc();
+
+    console.log(`Transaction signature:${tx}`);
+
+    const finalVaultAmt = await provider.connection.getBalance(vault);
+    const finalUserAmt = await provider.connection.getBalance(
+      provider.wallet.publicKey
+    );
+
+    expect(initialVaultAmt - finalVaultAmt).to.equal(withdrawAmt);
+    expect(finalUserAmt).to.be.greaterThan(initialUserAmt);
+  });
+
+  it("should close the vault" , async() => {});
 });
