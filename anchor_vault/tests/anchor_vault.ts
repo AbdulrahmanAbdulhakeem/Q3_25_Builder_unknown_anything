@@ -10,9 +10,6 @@ describe("anchor_vault", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
-  // space = VaultState::INIT_SPACE,
-  //       seeds = [b"vaultState" , user.key().as_ref()],
-
   const program = anchor.workspace.anchorVault as Program<AnchorVault>;
 
   const vaultState = anchor.web3.PublicKey.findProgramAddressSync(
@@ -61,7 +58,7 @@ describe("anchor_vault", () => {
       })
       .rpc();
 
-    console.log(`Transaction signature:${tx}`);
+    console.log(`deposit transaction signature:${tx}`);
 
     const finalAmt = await provider.connection.getBalance(vault);
 
@@ -83,7 +80,7 @@ describe("anchor_vault", () => {
       systemProgram:anchor.web3.SystemProgram.programId
     }).rpc();
 
-    console.log(`Transaction signature:${tx}`);
+    console.log(`withdraw transaction signature:${tx}`);
 
     const finalVaultAmt = await provider.connection.getBalance(vault);
     const finalUserAmt = await provider.connection.getBalance(
@@ -94,5 +91,29 @@ describe("anchor_vault", () => {
     expect(finalUserAmt).to.be.greaterThan(initialUserAmt);
   });
 
-  it("should close the vault" , async() => {});
+  it("should close the vault" , async() => {
+    const initialUserAmt = await provider.connection.getBalance(provider.wallet.publicKey);
+
+    const tx = await program.methods.close().accountsPartial({
+      user:provider.wallet.publicKey,
+      vault,
+      vaultState,
+      systemProgram:anchor.web3.SystemProgram.programId
+    }).rpc();
+
+    console.log(`close transaction signature:${tx}`);
+
+    const finalVaultAmt = await provider.connection.getBalance(vault);
+    const finalUserAmt = await provider.connection.getBalance(provider.wallet.publicKey);
+
+    expect(finalVaultAmt).to.equal(0);
+    expect(finalUserAmt).to.be.greaterThan(initialUserAmt);
+
+    try {
+      await program.account.vaultState.fetch(vaultState);
+      throw new Error("Vault state should be closed");
+    } catch (error) {
+      expect(error.message).to.include("Account does not exist")
+    }
+  });
 });
