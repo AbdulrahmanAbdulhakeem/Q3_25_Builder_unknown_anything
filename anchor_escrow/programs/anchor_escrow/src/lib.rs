@@ -21,4 +21,13 @@ pub mod anchor_escrow {
         ctx.accounts.init_escrow(seed, receive, &ctx.bumps)?;
         ctx.accounts.deposit(deposit)
     }
+
+    pub fn take(ctx: Context<Take>) -> Result<()> {
+        ctx.accounts.transfer_to_maker()?;
+        ctx.accounts.withdraw_and_close_vault()
+    }
+
+    pub fn refund(ctx:Context<Refund>) -> Result<()> {
+        Ok(())
+    }
 }
