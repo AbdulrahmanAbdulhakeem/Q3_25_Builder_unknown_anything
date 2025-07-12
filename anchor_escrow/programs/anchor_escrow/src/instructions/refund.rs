@@ -4,7 +4,6 @@ use anchor_spl::{associated_token::AssociatedToken, token_interface::{Mint, Toke
 use crate::Escrow;
 
 #[derive(Accounts)]
-#[instruction(seed:u64)]
 pub struct Refund<'info> {
     #[account(mut)]
     pub maker:Signer<'info>,
@@ -17,7 +16,7 @@ pub struct Refund<'info> {
     )]
     pub maker_ata_a:InterfaceAccount<'info,TokenAccount>,
     #[account(
-        seeds = [b"escrow" , maker.key().as_ref(), seed.to_le_bytes().as_ref()],
+        seeds = [b"escrow" , maker.key().as_ref(), escrow.seed.to_le_bytes().as_ref()],
         bump = escrow.bump
     )]
     pub escrow:Account<'info,Escrow>,
