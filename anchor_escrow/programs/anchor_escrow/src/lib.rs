@@ -11,7 +11,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("Ek8ecZ1dZrx2Psc4viGJaBKF1MLYdU8vbnbZE6sus1Yk");
+declare_id!("22222222222222222222222222222222222222222222");
 
 #[program]
 pub mod anchor_escrow {
