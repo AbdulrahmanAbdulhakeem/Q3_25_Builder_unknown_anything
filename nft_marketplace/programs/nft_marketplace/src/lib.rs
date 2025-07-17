@@ -31,5 +31,10 @@ pub mod nft_marketplace {
         ctx.accounts.transfer_nft_to_taker()?;
         ctx.accounts.close_vault()
     }
+
+    pub fn delist(ctx:Context<Delist>) -> Result<()>{
+        ctx.accounts.withdraw_nft()?;
+        ctx.accounts.close_listing()
+    }
 }
 
