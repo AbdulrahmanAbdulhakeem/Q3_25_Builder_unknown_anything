@@ -6,3 +6,6 @@ pub use initialize_user_account::*;
 
 pub mod stake;
 pub use stake::*;
+
+pub mod unstake;
+pub use unstake::*;

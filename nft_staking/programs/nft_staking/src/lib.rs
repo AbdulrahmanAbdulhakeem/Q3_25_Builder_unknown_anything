@@ -16,7 +16,6 @@ declare_id!("5Zqk9MMXeweczXeqDsCN3M96QjqtJLLSk8KrDCMhdYng");
 
 #[program]
 pub mod nft_staking {
-    use crate::instruction::Stake;
 
     use super::*;
 
@@ -28,7 +27,11 @@ pub mod nft_staking {
         ctx.accounts.init_user(&ctx.bumps)
     }
 
-    pub fn stake(ctx:Context<Stake>) -> Result<()>{
-        Ok(())
+    pub fn stake(ctx:Context<Stake>) -> Result<()> {
+        ctx.accounts.stake(&ctx.bumps)
+    }
+
+    pub fn unstake(ctx:Context<Unstake>) -> Result<()> {
+        ctx.accounts.unstake()
     }
 }

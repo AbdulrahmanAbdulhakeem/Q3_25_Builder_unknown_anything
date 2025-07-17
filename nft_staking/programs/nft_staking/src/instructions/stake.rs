@@ -1,6 +1,11 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    metadata::{mpl_token_metadata::instructions::{FreezeDelegatedAccountCpi, FreezeDelegatedAccountCpiAccounts}, MasterEditionAccount, Metadata, MetadataAccount},
+    metadata::{
+        mpl_token_metadata::instructions::{
+            FreezeDelegatedAccountCpi, FreezeDelegatedAccountCpiAccounts,
+        },
+        MasterEditionAccount, Metadata, MetadataAccount,
+    },
     token::{approve, Approve, Mint, Token, TokenAccount},
 };
 
@@ -65,12 +70,13 @@ impl<'info> Stake<'info> {
             self.user_account.amount_staked < self.config.max_stake,
             StakeError::MaxStakeReeached
         );
+
         self.user_account.amount_staked += 1;
 
         let clock = Clock::get()?;
 
         self.stake_account.set_inner(StakeAccountState {
-            nft_mint:self.nft_mint.key(),
+            nft_mint: self.nft_mint.key(),
             owner: self.user.key(),
             bump: bumps.stake_account,
             staked_at: clock.unix_timestamp,
@@ -78,12 +84,12 @@ impl<'info> Stake<'info> {
 
         let cpi_program = self.token_program.to_account_info();
 
-        let cpi_accounts = Approve{
-            to:self.nft_mint_ata.to_account_info(),
-            delegate:self.stake_account.to_account_info(),
-            authority:self.user_account.to_account_info()
+        let cpi_accounts = Approve {
+            to: self.nft_mint_ata.to_account_info(),
+            delegate: self.stake_account.to_account_info(),
+            authority: self.user_account.to_account_info(),
         };
-        
+
         let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
 
         approve(cpi_ctx, 1)?;
@@ -92,7 +98,7 @@ impl<'info> Stake<'info> {
             b"stake_account",
             self.nft_mint.to_account_info().key.as_ref(),
             self.config.to_account_info().key.as_ref(),
-            &[self.stake_account.bump]
+            &[self.stake_account.bump],
         ];
 
         let signer_seeds = &[&seeds[..]];
@@ -104,15 +110,17 @@ impl<'info> Stake<'info> {
         let edition = &self.edition.to_account_info();
         let mint = &self.nft_mint.to_account_info();
 
-        FreezeDelegatedAccountCpi::new(metadata_program, 
-            FreezeDelegatedAccountCpiAccounts{
+        FreezeDelegatedAccountCpi::new(
+            metadata_program,
+            FreezeDelegatedAccountCpiAccounts {
                 delegate,
                 token_account,
                 token_program,
                 edition,
-                mint
-            }
-        ).invoke_signed(signer_seeds)?;
+                mint,
+            },
+        )
+        .invoke_signed(signer_seeds)?;
         Ok(())
     }
 }
