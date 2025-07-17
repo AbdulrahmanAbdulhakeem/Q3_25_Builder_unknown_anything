@@ -25,5 +25,11 @@ pub mod nft_marketplace {
         ctx.accounts.create_listing(price, &ctx.bumps)?;
         ctx.accounts.deposit_nft()
     }
+
+    pub fn purchase(ctx:Context<Purchase>) -> Result<()>{
+        ctx.accounts.send_sol_to_maker()?;
+        ctx.accounts.transfer_nft_to_taker()?;
+        ctx.accounts.close_vault()
+    }
 }
 
