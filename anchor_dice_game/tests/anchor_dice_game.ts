@@ -37,12 +37,15 @@ describe("anchor_dice_game", () => {
     program.programId
   )[0];
 
-  const bet = PublicKey.findProgramAddressSync([Buffer.from("bet"),vault.toBuffer(),seed.toBuffer("le",16)],program.programId)[0];
+  const bet = PublicKey.findProgramAddressSync(
+    [Buffer.from("bet"), vault.toBuffer(), seed.toBuffer("le", 16)],
+    program.programId
+  )[0];
 
   const roll = 50;
-  const topup = new BN(40*LAMPORTS_PER_SOL);
+  const topup = new BN(40 * LAMPORTS_PER_SOL);
 
-  const betAmount = (LAMPORTS_PER_SOL/100);
+  const betAmount = LAMPORTS_PER_SOL / 100;
 
   const log = async (signature: string): Promise<string> => {
     console.log(
@@ -53,36 +56,73 @@ describe("anchor_dice_game", () => {
 
   it("should airdrop house and player!", async () => {
     // Add your test here.
-    await Promise.all([house,player].map(async(k) => {
-      return await connection.requestAirdrop(
-          k.publicKey,
-          1000*LAMPORTS_PER_SOL
-      ).then(confirm).then(log)
-    }))
+    await Promise.all(
+      [house, player].map(async (k) => {
+        return await connection
+          .requestAirdrop(k.publicKey, 1000 * LAMPORTS_PER_SOL)
+          .then(confirm)
+          .then(log);
+      })
+    );
   });
 
-  it("should initialize the vault", async() => {
-    const tx = await program.methods.initialize(topup).accounts({house:house.publicKey}).signers([house]).rpc().then(confirm).then(log);
+  it("should initialize the vault", async () => {
+    const tx = await program.methods
+      .initialize(topup)
+      .accounts({ house: house.publicKey })
+      .signers([house])
+      .rpc()
+      .then(confirm)
+      .then(log);
 
     const vaultBalance = await connection.getBalance(vault);
 
-    console.log(vaultBalance);
-
     expect(vaultBalance.toString()).to.eql(topup.toString());
-  })
+  });
 
-  it("should place a bet", async() => {
-
-    const tx = await program.methods.placeBet(seed,topup,roll).accounts({
-      player:player.publicKey,
-      house:house.publicKey,
-    }).signers([player]).rpc().then(confirm).then(log);
+  it("should place a bet", async () => {
+    const tx = await program.methods
+      .placeBet(seed, topup, roll)
+      .accounts({
+        player: player.publicKey,
+        house: house.publicKey,
+      })
+      .signers([player])
+      .rpc()
+      .then(confirm)
+      .then(log);
 
     const betAccount = await program.account.bet.fetch(bet);
-    console.log(betAccount)
+
+    const vaultBalance = await connection.getBalance(vault);
 
     expect(betAccount.roll).to.eq(roll);
     expect(betAccount.amount.toString()).to.eq(topup.toString());
     expect(betAccount.player.toBase58()).to.eq(player.publicKey.toBase58());
-  })
+    expect(vaultBalance.toString()).to.eq(topup.muln(2).toString());
+  });
+
+  it("should refund bet", async () => {
+    const vaultAccountBefore = await connection.getBalance(vault);
+
+    console.log(vaultAccountBefore);
+
+    const tx = await program.methods
+      .refundBet()
+      .accounts({
+        player: player.publicKey,
+        house: house.publicKey,
+        bet
+      })
+      .signers([player])
+      .rpc()
+      .then(confirm)
+      .then(log);
+
+    const vaultAccountAfter = await connection.getBalance(vault);
+
+    expect((vaultAccountBefore - vaultAccountAfter).toString()).to.eq(topup.toString());
+  });
+
+  
 });
