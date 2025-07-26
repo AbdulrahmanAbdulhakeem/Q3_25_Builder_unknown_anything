@@ -13,13 +13,13 @@ pub struct PlaceBet<'info> {
         init,
         payer = player,
         space = 8 + Bet::INIT_SPACE,
-        seeds = [b"bet" , player.key().as_ref()],
+        seeds = [b"bet" ,  vault.key().as_ref(),seed.to_le_bytes().as_ref()],
         bump
     )]
     pub bet: Account<'info, Bet>,
     #[account(
         mut,
-        seeds = [b"vault" , vault.key().as_ref(),seed.to_le_bytes().as_ref()],
+        seeds = [b"vault" , house.key().as_ref()],
         bump
     )]
     pub vault: SystemAccount<'info>,
