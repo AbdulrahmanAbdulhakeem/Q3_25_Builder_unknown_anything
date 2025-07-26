@@ -23,4 +23,13 @@ pub mod anchor_dice_game {
         ctx.accounts.create_bet(seed, amount, &ctx.bumps, roll)?;
         ctx.accounts.deposit(amount)
     }
+
+    pub fn resolve_bet(ctx:Context<ResolveBet>,sig:Vec<u8>) -> Result<()>{
+        ctx.accounts.verify_edd25519_signature(&sig)?;
+        ctx.accounts.resolve_bet(&sig, &ctx.bumps)
+    }
+
+    pub fn refund_bet(ctx:Context<RefundBet>) -> Result<()>{
+        ctx.accounts.refund_bet(&ctx.bumps)
+    }
 }

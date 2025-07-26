@@ -26,7 +26,7 @@ impl<'info> Initialize<'info> {
             },
         );
 
-        transfer(ctx, amount);
-        Ok(())
+        transfer(ctx, amount)
+
     }
 }
