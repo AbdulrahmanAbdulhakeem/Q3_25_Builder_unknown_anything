@@ -13,6 +13,7 @@ pub struct ResolveBet<'info> {
     #[account(mut)]
     pub house: Signer<'info>,
     #[account(mut)]
+     ///CHECK: This is safe
     pub player: UncheckedAccount<'info>,
     #[account(
        mut,
@@ -30,6 +31,7 @@ pub struct ResolveBet<'info> {
     #[account(
         address = solana_program::sysvar::instructions::ID
     )]
+    /// CHECK: This is safe
     pub instruction_sysvar: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }

@@ -5,8 +5,9 @@ use crate::Bet;
 #[derive(Accounts)]
 pub struct RefundBet<'info> {
     #[account(mut)]
-    pub house: Signer<'info>,
-    pub player: UncheckedAccount<'info>,
+    pub player: Signer<'info>,
+    ///CHECK:This is safe
+    pub house: UncheckedAccount<'info>,
     #[account(
          mut,
         seeds = [b"vault" , house.key().as_ref()],
