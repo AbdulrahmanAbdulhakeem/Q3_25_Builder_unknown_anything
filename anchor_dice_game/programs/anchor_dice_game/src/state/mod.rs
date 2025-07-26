@@ -21,3 +21,8 @@ impl Bet{
         s
     }
 }
+
+#[event]
+pub struct BetEvent{
+   pub bet:u8
+}
