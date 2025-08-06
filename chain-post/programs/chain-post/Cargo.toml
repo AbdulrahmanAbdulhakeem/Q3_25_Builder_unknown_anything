@@ -1,0 +1,25 @@
+[package]
+name = "chain-post"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "chain_post"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "spl-account-compression/idl-build","anchor-spl/idl-build"]
+
+
+[dependencies]
+anchor-lang = { version = "0.31.1", features = ["init-if-needed"]}
+mpl-bubblegum = { version = "2.1.0", features = [] }
+spl-account-compression = {version = "1.0.0", features = ["cpi", "no-entrypoint"]}
+mpl-core = "0.10.0"
+anchor-spl = "0.31.1"
