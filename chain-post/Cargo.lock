@@ -498,8 +498,10 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "mpl-account-compression",
  "mpl-bubblegum",
  "mpl-core",
+ "mpl-noop",
  "spl-account-compression",
 ]
 
@@ -936,6 +938,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpl-account-compression"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22de19412db95cbff5173f16b163b55c76a6243b032eaccef00836448c477793"
+dependencies = [
+ "anchor-lang",
+ "bytemuck",
+ "mpl-noop",
+ "solana-program",
+ "spl-concurrent-merkle-tree",
+]
+
+[[package]]
 name = "mpl-bubblegum"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -966,6 +981,15 @@ dependencies = [
  "serde_json",
  "solana-program",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "mpl-noop"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db529ca0c0fc83db8f009484fe77337500503cf1ea0c746de8d3e6e4c950906c"
+dependencies = [
+ "solana-program",
 ]
 
 [[package]]

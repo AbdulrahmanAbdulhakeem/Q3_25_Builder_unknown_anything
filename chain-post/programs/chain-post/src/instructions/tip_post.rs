@@ -3,6 +3,7 @@ use anchor_lang::{prelude::*, system_program::{transfer, Transfer}};
 use crate::{error::ChainPostError, PostAccount, UserAccountState};
 
 #[derive(Accounts)]
+#[instruction(seed:u64)]
 pub struct TiPPost<'info>{
     #[account(mut)]
     pub tipper:Signer<'info>,
@@ -15,8 +16,8 @@ pub struct TiPPost<'info>{
     pub user_account: Account<'info, UserAccountState>,
      #[account(
         mut,
-        seeds = [b"post",post_account.author.to_bytes().as_ref(),post_account.seed.to_le_bytes().as_ref()],
-        bump
+        seeds = [b"post",content_creator.key().as_ref(),seed.to_le_bytes().as_ref()],
+        bump = post_account.bump
     )]
     pub post_account: Account<'info, PostAccount>,
     pub system_program:Program<'info,System>

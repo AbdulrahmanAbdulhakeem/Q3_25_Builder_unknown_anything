@@ -3,7 +3,7 @@ use anchor_lang::{
     system_program::{transfer, Transfer},
 };
 use anchor_spl::token_interface::{Mint, TokenInterface};
-use mpl_core::{instructions::CreateV2CpiBuilder, types::DataState};
+use mpl_core::{instructions::CreateV1CpiBuilder, types::DataState};
 
 use crate::{error::ChainPostError, PostAccount, UserAccountState};
 
@@ -13,20 +13,19 @@ pub struct BuyPostNft<'info> {
     pub buyer: Signer<'info>,
     #[account(mut)]
     pub author: SystemAccount<'info>,
-    #[account(
-        mint::token_program = token_program
-    )]
-    pub nft_mint: InterfaceAccount<'info, Mint>,
+    /// CHECK: This is the mint account of the asset to be minted
+    #[account(mut)]
+    pub nft_mint: Signer<'info>,
     #[account(
         mut,
-        seeds = [b"user" , buyer.key().as_ref()],
+        seeds = [b"user",buyer.key().as_ref()],
         bump = user_account.bump
     )]
     pub user_account: Account<'info, UserAccountState>,
     #[account(
         mut,
-        seeds = [b"post",author.key.to_bytes().as_ref(),post_account.seed.to_le_bytes().as_ref()],
-        bump
+        seeds = [b"post",author.key.as_ref(),post_account.seed.to_le_bytes().as_ref()],
+        bump = post_account.bump
     )]
     pub post_account: Account<'info, PostAccount>,
     pub token_program: Interface<'info, TokenInterface>,
@@ -58,7 +57,7 @@ impl<'info> BuyPostNft<'info> {
     }
 
     pub fn mint_nft_to_buyer(&mut self, name: String, uri: String) -> Result<()> {
-        CreateV2CpiBuilder::new(&self.mpl_core.to_account_info())
+        CreateV1CpiBuilder::new(&self.mpl_core.to_account_info())
             .asset(&self.nft_mint.to_account_info())
             .authority(Some(&self.author.to_account_info()))
             .payer(&self.buyer.to_account_info())

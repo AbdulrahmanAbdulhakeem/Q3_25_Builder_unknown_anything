@@ -1,6 +1,9 @@
 use anchor_lang::prelude::*;
-use mpl_bubblegum::instructions::CreateTreeConfigV2CpiBuilder;
+// use mpl_account_compression::{program::MplAccountCompression,Noop};
+use mpl_bubblegum::instructions::CreateTreeConfigCpiBuilder;
 use spl_account_compression::{program::SplAccountCompression, Noop};
+
+
 
 use crate::{MplBubblegum, PlatformConfig};
 
@@ -9,13 +12,13 @@ pub struct Initialize<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
     ///CHECK:
-    #[account(mut)]
+    #[account(mut,signer)]
     pub merkle_tree: UncheckedAccount<'info>,
     #[account(
         init,
         payer = admin,
         space = 8 + PlatformConfig::INIT_SPACE,
-        seeds = [b"platformConfig", admin.key().to_bytes().as_ref()],
+        seeds = [b"platformConfig", admin.key().as_ref()],
         bump
     )]
     pub platform_config: Account<'info, PlatformConfig>,
@@ -35,14 +38,14 @@ pub struct Initialize<'info> {
 
 impl<'info> Initialize<'info> {
     pub fn create_merkle_tree(&mut self, max_depth: u32, max_buffer_size: u32) -> Result<()> {
-        CreateTreeConfigV2CpiBuilder::new(&self.bubblegum_program.to_account_info())
+        CreateTreeConfigCpiBuilder::new(&self.bubblegum_program.to_account_info())
             .merkle_tree(&self.merkle_tree.to_account_info())
             .tree_config(&self.tree_config.to_account_info())
             .payer(&self.admin.to_account_info())
             .log_wrapper(&self.log_wrapper.to_account_info())
             .compression_program(&self.compression_program.to_account_info())
             .system_program(&self.system_program.to_account_info())
-            .tree_creator(Some(&self.admin.to_account_info()))
+            .tree_creator(&self.admin.to_account_info())
             .max_depth(max_depth)
             .max_buffer_size(max_buffer_size)
             .public(false)

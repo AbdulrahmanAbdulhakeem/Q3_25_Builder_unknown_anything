@@ -2,15 +2,13 @@
 pub mod error;
 pub mod instructions;
 pub mod state;
-pub mod metaplex_adapter;
 
 use anchor_lang::prelude::*;
 
-pub use crate::metaplex_adapter::MetadataArgsV2Local;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("4d3EUYmEjuPVpDVdemUFSpLyFJ6B7fRCLrvEccJZ6ygn");
+declare_id!("5xypnA1UCCrXo2kXvcAksKnsRf1oigFhasGQGgfZntqc");
 
 #[derive(Clone)]
 pub struct MplBubblegum;
@@ -25,7 +23,9 @@ impl anchor_lang::Id for MplBubblegum {
 #[program]
 pub mod chain_post {
 
-    use crate::metaplex_adapter::MetadataArgsV2Local;
+    // use crate::metaplex_adapter::MetadataArgsLocal;
+
+    // use mpl_bubblegum::types::MetadataArgs;
 
     use super::*;
 
@@ -40,38 +40,57 @@ pub mod chain_post {
         Ok(())
     }
 
-     pub fn initialize_user(ctx:Context<InitializeUserConfig>) -> Result<()> {
+    pub fn initialize_user(ctx: Context<InitializeUserConfig>) -> Result<()> {
         ctx.accounts.init_user(&ctx.bumps)
     }
 
     pub fn create_post(
         ctx: Context<CreatePost>,
-        metadata: MetadataArgsV2Local,
         seed: u64,
-        content:String
+        content: String,
     ) -> Result<()> {
-        ctx.accounts.create_cnft_post(metadata, seed, &ctx.bumps, content)?;
+        ctx.accounts
+            .create_cnft_post(seed, &ctx.bumps, content)?;
         Ok(())
     }
 
     //For now only sol is supported
-    pub fn tip_post(ctx:Context<TiPPost>, amount:u64) -> Result<()> {
+    pub fn tip_post(ctx: Context<TiPPost>,seed: u64, amount: u64) -> Result<()> {
         ctx.accounts.tip_sol(amount)?;
         Ok(())
     }
 
-    pub fn comment_on_post(ctx:Context<CommentOnPost>,seed: u64,title:String,comment:String) -> Result<()>{
+    pub fn comment_on_post(
+        ctx: Context<CommentOnPost>,
+        seed: u64,
+        title: String,
+        comment: String,
+    ) -> Result<()> {
         ctx.accounts.comment(seed, title, comment, &ctx.bumps)?;
         Ok(())
     }
 
-    pub fn delete_post(_ctx:Context<DeletePost>) -> Result<()> {
+    pub fn delete_post(
+        ctx: Context<DeletePost>,
+        root: [u8; 32],
+        data_hash: [u8; 32],
+        creator_hash: [u8; 32],
+        nonce: u64,
+        index: u32,
+    ) -> Result<()> {
+        ctx.accounts
+            .burn_nft(root, data_hash, creator_hash, nonce, index)?;
         msg!("Post has been Deleted");
         msg!("CNFT burned");
         Ok(())
     }
 
-    pub fn buy_post_nft(ctx:Context<BuyPostNft>,amount:u64,name:String,uri:String) ->Result<()>{
+    pub fn buy_post_nft(
+        ctx: Context<BuyPostNft>,
+        amount: u64,
+        name: String,
+        uri: String,
+    ) -> Result<()> {
         ctx.accounts.transfer_sol(amount)?;
         ctx.accounts.mint_nft_to_buyer(name, uri)?;
         Ok(())

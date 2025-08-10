@@ -13,14 +13,14 @@ pub struct CommentOnPost<'info> {
         init,
         payer = commenter,
         space = 8 + CommentAccount::INIT_SPACE,
-        seeds = [b"comment",post_account.key().to_bytes().as_ref(),seed.to_le_bytes().as_ref(),commenter.key().to_bytes().as_ref()],
+        seeds = [b"comment",post_account.key().as_ref(),seed.to_le_bytes().as_ref(),commenter.key().as_ref()],
         bump
     )]
     pub comment_account: Account<'info, CommentAccount>,
     #[account(
         mut,
-        seeds = [b"post",author.key.to_bytes().as_ref(),post_account.seed.to_le_bytes().as_ref()],
-        bump
+        seeds = [b"post",author.key.as_ref(),post_account.seed.to_le_bytes().as_ref()],
+        bump = post_account.bump
     )]
     pub post_account: Account<'info, PostAccount>,
     pub system_program: Program<'info, System>,
@@ -29,6 +29,7 @@ pub struct CommentOnPost<'info> {
 impl<'info> CommentOnPost<'info> {
     pub fn comment(&mut self,seed:u64,title:String,comment:String,bumps:&CommentOnPostBumps) -> Result<()> {
         let clock = Clock::get()?;
+        
 
         self.comment_account.set_inner(CommentAccount {
             owner: self.commenter.key(),

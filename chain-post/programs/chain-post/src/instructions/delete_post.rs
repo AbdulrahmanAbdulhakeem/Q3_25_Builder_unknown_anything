@@ -1,6 +1,9 @@
 use anchor_lang::prelude::*;
-use mpl_bubblegum::instructions::BurnV2CpiBuilder;
-use spl_account_compression::program::SplAccountCompression;
+// use mpl_account_compression::program::MplAccountCompression;
+use mpl_bubblegum::instructions::BurnCpiBuilder;
+use spl_account_compression::{program::SplAccountCompression, Noop};
+
+// use spl_account_compression::program::SplAccountCompression;
 
 use crate::PostAccount;
 
@@ -11,7 +14,7 @@ pub struct DeletePost<'info> {
     #[account(
         mut,
         close = creator_or_admin,
-        seeds = [b"post",post_account.author.key().to_bytes().as_ref(),post_account.seed.to_le_bytes().as_ref()],
+        seeds = [b"post",post_account.author.key().as_ref(),post_account.seed.to_le_bytes().as_ref()],
         bump
     )]
     pub post_account: Account<'info, PostAccount>,
@@ -27,7 +30,7 @@ pub struct DeletePost<'info> {
     /// CHECK: This account is neither written to nor read from.
     pub merkle_tree: UncheckedAccount<'info>,
     /// CHECK: This account is neither written to nor read from.
-    pub log_wrapper: UncheckedAccount<'info>,
+    pub log_wrapper: Program<'info, Noop>,
     pub compression_program: Program<'info, SplAccountCompression>,
     /// CHECK: This account is neither written to nor read from.
     pub bubblegum_program: UncheckedAccount<'info>,
@@ -43,11 +46,11 @@ impl<'info> DeletePost<'info> {
         nonce: u64,
         index: u32,
     ) -> Result<()> {
-        BurnV2CpiBuilder::new(&self.bubblegum_program.to_account_info())
+        BurnCpiBuilder::new(&self.bubblegum_program.to_account_info())
             .tree_config(&self.tree_config.to_account_info())
-            .payer(&self.creator_or_admin)
-            .leaf_owner(&self.creator_or_admin)
-            .leaf_delegate(Some(&self.creator_or_admin))
+            // .payer(&self.creator_or_admin)
+            .leaf_owner(&self.creator_or_admin,true)
+            .leaf_delegate(&self.creator_or_admin,false)
             .merkle_tree(&self.merkle_tree.to_account_info())
             .log_wrapper(&self.log_wrapper.to_account_info())
             .compression_program(&self.compression_program.to_account_info())
