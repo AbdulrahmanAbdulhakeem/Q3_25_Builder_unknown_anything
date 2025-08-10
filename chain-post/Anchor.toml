@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-chain_post = "5xypnA1UCCrXo2kXvcAksKnsRf1oigFhasGQGgfZntqc"
+chain_post = "GREkxLPVDT7d198Hwke4f7Dv1hZAp4CiZwECnMJsMQbW"
 
 [registry]
 url = "https://api.apr.dev"

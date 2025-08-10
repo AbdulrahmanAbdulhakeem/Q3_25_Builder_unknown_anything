@@ -1,5 +1,4 @@
 use anchor_lang::prelude::*;
-// use mpl_account_compression::{program::MplAccountCompression,Noop};
 use mpl_bubblegum::instructions::CreateTreeConfigCpiBuilder;
 use spl_account_compression::{program::SplAccountCompression, Noop};
 

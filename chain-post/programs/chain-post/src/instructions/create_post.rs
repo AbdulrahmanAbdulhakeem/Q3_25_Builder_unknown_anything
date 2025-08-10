@@ -1,10 +1,8 @@
 use crate::{MplBubblegum, PlatformConfig, PostAccount, UserAccountState};
 use anchor_lang::prelude::*;
-// use mpl_account_compression::program::MplAccountCompression;
-// use mpl_account_compression::Noop;
+
 use spl_account_compression::{program::SplAccountCompression, Noop};
 
-// use spl_account_compression::{program::SplAccountCompression, Noop};
 
 #[derive(Accounts)]
 #[instruction(seed:u64)]

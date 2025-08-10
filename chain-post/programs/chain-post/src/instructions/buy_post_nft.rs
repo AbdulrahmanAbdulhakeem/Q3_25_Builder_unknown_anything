@@ -2,7 +2,7 @@ use anchor_lang::{
     prelude::*,
     system_program::{transfer, Transfer},
 };
-use anchor_spl::token_interface::{Mint, TokenInterface};
+use anchor_spl::token_interface::{TokenInterface};
 use mpl_core::{instructions::CreateV1CpiBuilder, types::DataState};
 
 use crate::{error::ChainPostError, PostAccount, UserAccountState};

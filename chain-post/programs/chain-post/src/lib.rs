@@ -8,7 +8,7 @@ use anchor_lang::prelude::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("5xypnA1UCCrXo2kXvcAksKnsRf1oigFhasGQGgfZntqc");
+declare_id!("GREkxLPVDT7d198Hwke4f7Dv1hZAp4CiZwECnMJsMQbW");
 
 #[derive(Clone)]
 pub struct MplBubblegum;
@@ -19,13 +19,9 @@ impl anchor_lang::Id for MplBubblegum {
     }
 }
 
-// ctx: Context<'_, '_, '_, 'info, Mint<'info>>,
+
 #[program]
 pub mod chain_post {
-
-    // use crate::metaplex_adapter::MetadataArgsLocal;
-
-    // use mpl_bubblegum::types::MetadataArgs;
 
     use super::*;
 

@@ -1,9 +1,8 @@
 use anchor_lang::prelude::*;
-// use mpl_account_compression::program::MplAccountCompression;
 use mpl_bubblegum::instructions::BurnCpiBuilder;
 use spl_account_compression::{program::SplAccountCompression, Noop};
 
-// use spl_account_compression::program::SplAccountCompression;
+
 
 use crate::PostAccount;
 

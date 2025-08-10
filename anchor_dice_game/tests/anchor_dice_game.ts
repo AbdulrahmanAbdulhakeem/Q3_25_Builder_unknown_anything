@@ -105,11 +105,9 @@ describe("anchor_dice_game", () => {
   it("should refund bet", async () => {
     const vaultAccountBefore = await connection.getBalance(vault);
 
-    console.log(vaultAccountBefore);
-
     const tx = await program.methods
       .refundBet()
-      .accounts({
+      .accountsPartial({
         player: player.publicKey,
         house: house.publicKey,
         bet
@@ -124,5 +122,6 @@ describe("anchor_dice_game", () => {
     expect((vaultAccountBefore - vaultAccountAfter).toString()).to.eq(topup.toString());
   });
 
-  
+  it("should resolve the bet" , async() => {});
+
 });

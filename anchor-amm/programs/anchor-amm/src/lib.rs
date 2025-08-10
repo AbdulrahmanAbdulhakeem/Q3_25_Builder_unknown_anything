@@ -25,6 +25,7 @@ pub mod anchor_amm {
     pub fn withdraw(ctx: Context<Withdraw>,lp_amount:u64,min_x:u64,min_y:u64) -> Result<()>{
         ctx.accounts.withdraw(lp_amount, min_x, min_y)
     }
+    
     pub fn deposit(ctx: Context<Deposit>,max_y:u64,max_x:u64,lp_amount:u64) -> Result<()>{
         ctx.accounts.deposit(max_y, max_x, lp_amount)
     }
