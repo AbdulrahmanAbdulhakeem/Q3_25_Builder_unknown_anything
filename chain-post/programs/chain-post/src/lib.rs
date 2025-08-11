@@ -8,7 +8,7 @@ use anchor_lang::prelude::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("GREkxLPVDT7d198Hwke4f7Dv1hZAp4CiZwECnMJsMQbW");
+declare_id!("5YwaH7t9h3zMTEPiPzZhTB3w1c7ZBHczLiGwQ1D8Li1i");
 
 #[derive(Clone)]
 pub struct MplBubblegum;

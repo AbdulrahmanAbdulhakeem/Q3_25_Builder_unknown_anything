@@ -5,15 +5,35 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.devnet]
-chain_post = "GREkxLPVDT7d198Hwke4f7Dv1hZAp4CiZwECnMJsMQbW"
+[programs.localnet]
+chain_post = "5YwaH7t9h3zMTEPiPzZhTB3w1c7ZBHczLiGwQ1D8Li1i"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "localnet"
 wallet = "~/Desktop/Turbin3-wallet.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[[test.genesis]]
+address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"  
+program = "tests/metaplex_token_metadata_program.so"
+
+[[test.genesis]]
+address = "BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY"  
+program = "tests/metaplex_bubblegum_program.so"
+
+[[test.genesis]]
+address = "noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV"  
+program = "tests/spl_noop_program.so"
+
+[[test.genesis]]
+address = "cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK"  
+program = "tests/spl_account_compression_program.so"
+
+[[test.genesis]]
+address = "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"  
+program = "tests/metaplex_core_program.so"

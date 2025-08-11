@@ -25,3 +25,10 @@ mpl-account-compression = { version = "1.0.0", features = ["cpi"] }
 mpl-noop = { version = "1.0.0", features = ["no-entrypoint"] }
 mpl-core = "0.10.0"
 anchor-spl = "0.31.1"
+
+# noopb9bkMVfRPU8AsbpTUg8AQkHtKwMYZiFUjNRtMmV
+# cmtDvXumGCrqC1Age74AVPhSRVXJMd8PJS91L8KbNCK
+# CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d
+
+
+# solana program dump -u m CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d tests/metaplex_core_program.so

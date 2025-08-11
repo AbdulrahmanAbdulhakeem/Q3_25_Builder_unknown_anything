@@ -10,11 +10,13 @@ import {
 import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
 import {
   Keypair,
+  LAMPORTS_PER_SOL,
   PublicKey,
   sendAndConfirmTransaction,
   Transaction,
 } from "@solana/web3.js";
 import {
+  fetchTreeConfigFromSeeds,
   LeafSchema,
   MPL_BUBBLEGUM_PROGRAM_ID,
 } from "@metaplex-foundation/mpl-bubblegum";
@@ -29,10 +31,7 @@ import {
   createAllocTreeIx,
 } from "@solana/spl-account-compression";
 import assert from "assert";
-import {
-  keypairIdentity,
-  publicKey,
-} from "@metaplex-foundation/umi";
+import { keypairIdentity, publicKey } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { irysUploader } from "@metaplex-foundation/umi-uploader-irys";
 import fs from "fs";
@@ -43,9 +42,7 @@ import {
   parseLeafFromMintV1Transaction,
 } from "@metaplex-foundation/mpl-bubblegum";
 import { none } from "@metaplex-foundation/umi";
-import {
-  mplTokenMetadata,
-} from "@metaplex-foundation/mpl-token-metadata";
+import { mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
 import { base58 } from "@metaplex-foundation/umi/serializers";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
@@ -147,6 +144,15 @@ describe("chain-post", () => {
     new PublicKey(MPL_BUBBLEGUM_PROGRAM_ID)
   )[0];
 
+   before(async () => {
+    await anchor
+      .getProvider()
+      .connection.requestAirdrop(
+        tipper.publicKey,
+        100 * LAMPORTS_PER_SOL
+      )
+      .then(confirm);
+  });
 
   it("initialize the platform and create a merkle_tree", async () => {
     console.log("Merkle tree public key:", merkleTree.publicKey.toBase58());
@@ -176,9 +182,11 @@ describe("chain-post", () => {
 
     const tx = await program.methods
       .initialize(14, 64)
-      .accounts({
+      .accountsPartial({
         admin: admin.publicKey,
         merkleTree: merkleTree.publicKey,
+        platformConfig: platform_config,
+        treeConfig:tree_config
       })
       .signers([admin, merkleTree])
       .rpc()
@@ -189,6 +197,8 @@ describe("chain-post", () => {
       connection,
       merkleTree.publicKey
     );
+
+    
 
     console.log("MaxBufferSize", treeAccount.getMaxBufferSize());
     console.log("MaxDepth", treeAccount.getMaxDepth());
@@ -224,91 +234,103 @@ describe("chain-post", () => {
   });
 
   it("should create post", async () => {
-    const image =
-      "https://gateway.irys.xyz/8rjNKB3W35Qdx9eWBT7KEksSqpuVwXnHXdMfytm6nLCG";
+    try {
+      const treeConfig = await fetchTreeConfigFromSeeds(umi, {
+        merkleTree: umiMerkleTree.publicKey,
+      });
+      console.log(treeConfig);
 
-    let content =
-      "This is the first chainpost by the admin,welcome to the platform chainers";
+      const image =
+        "https://gateway.irys.xyz/8rjNKB3W35Qdx9eWBT7KEksSqpuVwXnHXdMfytm6nLCG";
 
-    const metadata = {
-      name: "ChainRug",
-      symbol: "$ChainPost",
-      description: content,
-      image,
-      attributes: [{ trait_type: "type", value: "RUG" }],
-      properties: {
-        files: [
-          {
-            type: "image/png",
-            uri: image,
-          },
-        ],
-      },
-      creators: [],
-    };
+      let content =
+        "This is the first chainpost by the admin,welcome to the platform chainers";
 
-    const myUri = await umi.uploader.uploadJson(metadata);
-    console.log("Your metadata URI: ", myUri);
-
-    console.log("Minting Compressed NFT...");
-
-    const { signature } = await mintV1(umi, {
-      leafOwner: umi.identity.publicKey,
-      merkleTree: publicKey(merkleTree.publicKey),
-      metadata: {
-        name: "ChainPost",
-        uri: myUri,
-        sellerFeeBasisPoints: 550,
-        collection: none(),
+      const metadata = {
+        name: "ChainRug",
+        symbol: "$ChainPost",
+        description: content,
+        image,
+        attributes: [{ trait_type: "type", value: "RUG" }],
+        properties: {
+          files: [
+            {
+              type: "image/png",
+              uri: image,
+            },
+          ],
+        },
         creators: [],
-      },
-    }).sendAndConfirm(umi, {
-      send: { maxRetries: 50, skipPreflight: true },
-      confirm: { commitment: "finalized" },
-    });
+      };
 
-    console.log(
-      "Mint V1 Transaction Signature (Base58):",
-      base58.deserialize(signature)[0]
-    );
+      const myUri = await umi.uploader.uploadJson(metadata);
+      console.log("Your metadata URI: ", myUri);
 
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+      console.log("Minting Compressed NFT...");
 
-    leaf = await parseLeafFromMintV1Transaction(umi, signature);
-  
-    assetId = findLeafAssetIdPda(umi, {
-      merkleTree: umiMerkleTree.publicKey,
-      leafIndex: Number(leaf.nonce),
-    });
-    console.log("Inputs to findLeafAssetIdPda:", {
-      merkleTree: umiMerkleTree.publicKey.toString(),
-      leafIndex: leaf.nonce.toString(),
-    });
-    console.log("Generated assetId:", assetId.toString());
-    console.log("assetId", assetId);
-    console.log("leaf:", leaf);
+      const { signature } = await mintV1(umi, {
+        leafOwner: umi.identity.publicKey,
+        merkleTree: publicKey(merkleTree.publicKey),
+        metadata: {
+          name: "ChainPost",
+          uri: myUri,
+          sellerFeeBasisPoints: 550,
+          collection: none(),
+          creators: [],
+        },
+      }).sendAndConfirm(umi, {
+        send: { maxRetries: 50, skipPreflight: true },
+        confirm: { commitment: "finalized" },
+      });
 
-    const tx = await program.methods
-      .createPost(seed, content)
-      .accountsPartial({
-        contentCreator: admin.publicKey,
-        admin: admin.publicKey,
-        merkleTree: merkleTree.publicKey,
-        platformConfig:platform_config,
-      })
-      .signers([admin])
-      .rpc()
-      .then(confirm)
-      .then(log);
+      console.log(signature);
+
+      console.log(
+        "Mint V1 Transaction Signature (Base58):",
+        base58.deserialize(signature)[0]
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      leaf = await parseLeafFromMintV1Transaction(umi, signature);
+
+      assetId = findLeafAssetIdPda(umi, {
+        merkleTree: umiMerkleTree.publicKey,
+        leafIndex: Number(leaf.nonce),
+      });
+      console.log("Inputs to findLeafAssetIdPda:", {
+        merkleTree: umiMerkleTree.publicKey.toString(),
+        leafIndex: leaf.nonce.toString(),
+      });
+      console.log("Generated assetId:", assetId.toString());
+      console.log("assetId", assetId);
+      console.log("leaf:", leaf);
+
+      const tx = await program.methods
+        .createPost(seed, content)
+        .accountsPartial({
+          contentCreator: admin.publicKey,
+          admin: admin.publicKey,
+          merkleTree: merkleTree.publicKey,
+          userAccount: user_account1,
+        })
+        .signers([admin])
+        .rpc()
+        .then(confirm)
+        .then(log);
+    } catch (error) {
+      console.log(error);
+      throw new Error(error);
+    }
   });
 
   it("should tip post", async () => {
     const tx = await program.methods
-      .tipPost(seed,new BN(10000))
+      .tipPost(seed, new BN(10000))
       .accountsPartial({
         tipper: tipper.publicKey,
         contentCreator: admin.publicKey,
-        postAccount:post_account
+        postAccount: post_account,
       })
       .signers([tipper])
       .rpc()
@@ -331,42 +353,41 @@ describe("chain-post", () => {
     )[0];
 
     console.log("Post Account PDA:", post_account.toString());
-console.log("Comment Account PDA:", comment_account.toString());
+    console.log("Comment Account PDA:", comment_account.toString());
 
     const tx = await program.methods
       .commentOnPost(seed, title, comment)
       .accountsPartial({
         commenter: tipper.publicKey,
         author: admin.publicKey,
-        postAccount:post_account,
-        commentAccount:comment_account
+        postAccount: post_account,
+        commentAccount: comment_account,
       })
       .signers([tipper])
       .rpc()
       .then(confirm)
       .then(log);
 
-
     console.log(comment_account);
   });
 
-    it("should buy post nft", async () => {
-
+  it("should buy post nft", async () => {
     nft_mint = Keypair.generate();
-   
+
     const amount = new BN(10000);
-    const uri = " https://gateway.irys.xyz/4veGeQyTgxtravcxVCXwTN7p7VCDV3PTi7Uih5E3qhX7"
+    const uri =
+      " https://gateway.irys.xyz/4veGeQyTgxtravcxVCXwTN7p7VCDV3PTi7Uih5E3qhX7";
     const tx = await program.methods
-      .buyPostNft(amount,'First Post' , uri)
+      .buyPostNft(amount, "First Post", uri)
       .accountsPartial({
-        buyer:tipper.publicKey,
-        author:admin.publicKey,
-        nftMint:nft_mint.publicKey,
-        postAccount:post_account,
-        userAccount:user_account2,
-        tokenProgram:TOKEN_2022_PROGRAM_ID
+        buyer: tipper.publicKey,
+        author: admin.publicKey,
+        nftMint: nft_mint.publicKey,
+        postAccount: post_account,
+        userAccount: user_account2,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
       })
-      .signers([tipper,nft_mint])
+      .signers([tipper, nft_mint])
       .rpc()
       .then(confirm)
       .then(log);
@@ -374,7 +395,7 @@ console.log("Comment Account PDA:", comment_account.toString());
 
   it("should delete post", async () => {
     let merkleTreeAccount = await fetchMerkleTree(umi, umiMerkleTree.publicKey);
-    console.log(merkleTreeAccount)
+    console.log(merkleTreeAccount);
 
     const root = Array.from(getCurrentRoot(merkleTreeAccount.tree));
     const data_hash = Array.from(leaf.dataHash);
@@ -387,12 +408,11 @@ console.log("Comment Account PDA:", comment_account.toString());
         creatorOrAdmin: admin.publicKey,
         merkleTree: merkleTree.publicKey,
         bubblegumProgram: MPL_BUBBLEGUM_PROGRAM_ID,
-        postAccount:post_account
+        postAccount: post_account,
       })
       .signers([admin])
       .rpc()
       .then(confirm)
       .then(log);
   });
-
 });

@@ -14,7 +14,7 @@ pub struct Initialize<'info> {
     #[account(mut,signer)]
     pub merkle_tree: UncheckedAccount<'info>,
     #[account(
-        init,
+        init_if_needed,
         payer = admin,
         space = 8 + PlatformConfig::INIT_SPACE,
         seeds = [b"platformConfig", admin.key().as_ref()],
