@@ -51,7 +51,7 @@ pub mod chain_post {
     }
 
     //For now only sol is supported
-    pub fn tip_post(ctx: Context<TiPPost>,seed: u64, amount: u64) -> Result<()> {
+    pub fn tip_post(ctx: Context<TiPPost>,_seed: u64, amount: u64) -> Result<()> {
         ctx.accounts.tip_sol(amount)?;
         Ok(())
     }

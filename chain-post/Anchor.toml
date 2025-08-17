@@ -5,14 +5,14 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.localnet]
+[programs.devnet]
 chain_post = "5YwaH7t9h3zMTEPiPzZhTB3w1c7ZBHczLiGwQ1D8Li1i"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/Desktop/Turbin3-wallet.json"
 
 [scripts]

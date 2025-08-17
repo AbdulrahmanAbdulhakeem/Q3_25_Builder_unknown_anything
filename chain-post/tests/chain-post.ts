@@ -42,7 +42,7 @@ import {
   parseLeafFromMintV1Transaction,
 } from "@metaplex-foundation/mpl-bubblegum";
 import { none } from "@metaplex-foundation/umi";
-import { mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
+import { Key, mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
 import { base58 } from "@metaplex-foundation/umi/serializers";
 import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
@@ -88,9 +88,10 @@ describe("chain-post", () => {
 
   const admin = anchor.web3.Keypair.fromSecretKey(new Uint8Array(wallet));
 
-  const merkleTree = anchor.web3.Keypair.fromSecretKey(
-    new Uint8Array(merkle_tree_wallet)
-  );
+  // const merkleTree = anchor.web3.Keypair.fromSecretKey(
+  //   new Uint8Array(merkle_tree_wallet)
+  // );
+  const merkleTree = new Keypair();
 
   let leaf: LeafSchema;
   let assetId;
@@ -144,17 +145,18 @@ describe("chain-post", () => {
     new PublicKey(MPL_BUBBLEGUM_PROGRAM_ID)
   )[0];
 
-   before(async () => {
-    await anchor
-      .getProvider()
-      .connection.requestAirdrop(
-        tipper.publicKey,
-        100 * LAMPORTS_PER_SOL
-      )
-      .then(confirm);
-  });
+  //  before(async () => {
+  //   await anchor
+  //     .getProvider()
+  //     .connection.requestAirdrop(
+  //       tipper.publicKey,
+  //       100 * LAMPORTS_PER_SOL
+  //     )
+  //     .then(confirm);
+  // });
 
   it("initialize the platform and create a merkle_tree", async () => {
+    console.log(tipper.publicKey)
     console.log("Merkle tree public key:", merkleTree.publicKey.toBase58());
     console.log("Admin public key:", admin.publicKey.toBase58());
     console.log("Platform config:", platform_config.toBase58());
@@ -238,7 +240,7 @@ describe("chain-post", () => {
       const treeConfig = await fetchTreeConfigFromSeeds(umi, {
         merkleTree: umiMerkleTree.publicKey,
       });
-      console.log(treeConfig);
+      // console.log(treeConfig);
 
       const image =
         "https://gateway.irys.xyz/8rjNKB3W35Qdx9eWBT7KEksSqpuVwXnHXdMfytm6nLCG";
@@ -283,7 +285,7 @@ describe("chain-post", () => {
         confirm: { commitment: "finalized" },
       });
 
-      console.log(signature);
+      // console.log(signature);
 
       console.log(
         "Mint V1 Transaction Signature (Base58):",
@@ -298,13 +300,13 @@ describe("chain-post", () => {
         merkleTree: umiMerkleTree.publicKey,
         leafIndex: Number(leaf.nonce),
       });
-      console.log("Inputs to findLeafAssetIdPda:", {
-        merkleTree: umiMerkleTree.publicKey.toString(),
-        leafIndex: leaf.nonce.toString(),
-      });
-      console.log("Generated assetId:", assetId.toString());
-      console.log("assetId", assetId);
-      console.log("leaf:", leaf);
+      // console.log("Inputs to findLeafAssetIdPda:", {
+      //   merkleTree: umiMerkleTree.publicKey.toString(),
+      //   leafIndex: leaf.nonce.toString(),
+      // });
+      // console.log("Generated assetId:", assetId.toString());
+      // console.log("assetId", assetId);
+      // console.log("leaf:", leaf);
 
       const tx = await program.methods
         .createPost(seed, content)
@@ -352,8 +354,8 @@ describe("chain-post", () => {
       program.programId
     )[0];
 
-    console.log("Post Account PDA:", post_account.toString());
-    console.log("Comment Account PDA:", comment_account.toString());
+    console.log("Post Account PDA:", post_account.toBase58().toString());
+    console.log("Comment Account PDA:", comment_account.toBase58().toString());
 
     const tx = await program.methods
       .commentOnPost(seed, title, comment)
@@ -368,7 +370,7 @@ describe("chain-post", () => {
       .then(confirm)
       .then(log);
 
-    console.log(comment_account);
+    // console.log(comment_account);
   });
 
   it("should buy post nft", async () => {
@@ -395,7 +397,7 @@ describe("chain-post", () => {
 
   it("should delete post", async () => {
     let merkleTreeAccount = await fetchMerkleTree(umi, umiMerkleTree.publicKey);
-    console.log(merkleTreeAccount);
+    // console.log(merkleTreeAccount);
 
     const root = Array.from(getCurrentRoot(merkleTreeAccount.tree));
     const data_hash = Array.from(leaf.dataHash);

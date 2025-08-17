@@ -7,7 +7,7 @@ pub struct InitializeUserConfig<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
     #[account(
-        init,
+        init_if_needed,
         payer = payer,
         space = 8 + UserAccountState::INIT_SPACE,
         seeds = [b"user" , payer.key().as_ref()],

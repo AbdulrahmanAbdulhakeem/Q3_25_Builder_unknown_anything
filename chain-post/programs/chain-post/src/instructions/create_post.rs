@@ -14,7 +14,7 @@ pub struct CreatePost<'info> {
     ///CHECK:This is safe
     pub merkle_tree: UncheckedAccount<'info>,
     #[account(
-        init,
+        init_if_needed,
         payer = content_creator,
         space = 8 + PostAccount::INIT_SPACE,
         seeds = [b"post",content_creator.key().as_ref(),seed.to_le_bytes().as_ref()],

@@ -10,7 +10,7 @@ pub struct CommentOnPost<'info> {
      #[account(mut)]
     pub author:SystemAccount<'info>,
     #[account(
-        init,
+        init_if_needed,
         payer = commenter,
         space = 8 + CommentAccount::INIT_SPACE,
         seeds = [b"comment",post_account.key().as_ref(),seed.to_le_bytes().as_ref(),commenter.key().as_ref()],
